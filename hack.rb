@@ -79,14 +79,33 @@ if roles
   end
 end
 
+# get the placements
+puts 'Getting the Placements...'
+placement_service = dfp.service(:PlacementService, API_VERSION)
+offset = 0
+
+begin
+  statement = {:query => "LIMIT %d OFFSET %d" % [PAGE_SIZE, offset]}
+  page = placement_service.get_placements_by_statement(statement)
+  if page[:results]
+    offset += PAGE_SIZE
+    start_index = page[:start_index]
+    page[:results].each_with_index do |placement, index|
+      puts "%d) Placement ID: '%d', name: '%s'" % [index + start_index, placement[:id], placement[:name] ]
+    end
+  end
+end while offset < page[:total_result_set_size]
+
 # Create an Order
+puts 'Creating an Order...'
 
 order_service = dfp.service(:OrderService, API_VERSION)
 orders = order_service.create_orders([{
-  :name => 'API Created ' + DateTime.now.to_s,
+  :name => 'API Created Order ' + DateTime.now.to_s,
   :advertiser_id => 15781698,
   :salesperson_id => 113047698,
-  :trafficker_id => 113047698
+  :trafficker_id => 113047698,
+  :status => 'DRAFT'
 }])
 
 if orders
@@ -97,4 +116,70 @@ end
 
 # Create a Line Item
 
+puts 'Creating the Line Item...'
+line_item_service = dfp.service(:LineItemService, API_VERSION)
+
+targeting = {
+
+  :inventory_targeting => {
+    :targeted_placement_ids => [
+      3548418, # automotive
+      3549618 # manufacturing
+     ]
+  },
+
+  :geo_targeting => {
+    :targeted_locations => [
+      {:id => 2840},
+    ]
+  },
+
+  :user_domain_targeting => {
+    :domains => ['manta.com'],
+    :targeted => true
+  },
+
+  :day_part_targeting => {
+    :time_zone => 'BROWSER',
+    :day_parts => [
+      {:day_of_week => 'MONDAY', :start_time => { :hour => 0, :minute => 'ZERO' }, :end_time => { :hour => 24, :minute => 'ZERO' }},
+      {:day_of_week => 'TUESDAY', :start_time => { :hour => 0, :minute => 'ZERO' }, :end_time => { :hour => 24, :minute => 'ZERO' }},
+      {:day_of_week => 'WEDNESDAY', :start_time => { :hour => 0, :minute => 'ZERO' }, :end_time => { :hour => 24, :minute => 'ZERO' }},
+      {:day_of_week => 'THURSDAY', :start_time => { :hour => 0, :minute => 'ZERO' }, :end_time => { :hour => 24, :minute => 'ZERO' }},
+      {:day_of_week => 'FRIDAY', :start_time => { :hour => 0, :minute => 'ZERO' }, :end_time => { :hour => 24, :minute => 'ZERO' }}
+    ]
+  },
+
+  :technology_targeting => {
+    :browser_targeting => {
+      :is_targeted => true,
+      #just chrome
+      :browsers => [{:id => 500072}]
+    }
+  }
+}
+
+line_items = line_item_service.create_line_items([{
+  :name => 'API Create Line Item ' + DateTime.now.to_s,
+  :order_id => orders[0][:id],
+  :targeting => targeting,
+  :line_item_type => 'STANDARD',
+  :allow_overbook => true,
+  :creative_rotation_type => 'EVEN',
+  :creative_placeholders => [{ :size => {:width => 300, :height => 250, :is_aspect_ratio => false} }],
+  :start_date_time_type => 'IMMEDIATELY',
+  :end_date_time => Time.new + 60 * 60 * 24 * 7,
+  :cost_type => 'CPM',
+  :cost_per_unit => { :currency_code => 'USD', :micro_amount => 2000000 },
+  :units_bought => 50000,
+  :unit_type => 'IMPRESSIONS'
+}])
+
+if line_items
+  line_items.each do |line_item|
+    puts "Line item with ID: %d, belonging to order ID: %d, and named: %s was created." % [line_item[:id], line_item[:order_id], line_item[:name]]
+  end
+else
+  raise 'No line items were created'
+end
 # Create a Creative
