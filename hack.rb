@@ -4,6 +4,8 @@ require 'dfp_api'
 
 API_VERSION = :v201403
 PAGE_SIZE = 500
+ADVERTISER_ID = 15781698
+NATHAN_ROMANO = 113047698
 
 dfp = DfpApi::Api.new()
 
@@ -102,9 +104,9 @@ puts 'Creating an Order...'
 order_service = dfp.service(:OrderService, API_VERSION)
 orders = order_service.create_orders([{
   :name => 'API Created Order ' + DateTime.now.to_s,
-  :advertiser_id => 15781698,
-  :salesperson_id => 113047698,
-  :trafficker_id => 113047698,
+  :advertiser_id => ADVERTISER_ID,
+  :salesperson_id => NATHAN_ROMANO,
+  :trafficker_id => NATHAN_ROMANO,
   :status => 'DRAFT'
 }])
 
@@ -182,4 +184,41 @@ if line_items
 else
   raise 'No line items were created'
 end
-# Create a Creative
+
+
+# Create the Creative...
+puts 'Creating the Creative...'
+
+creative_service = dfp.service(:CreativeService, API_VERSION)
+creatives = creative_service.create_creatives([{
+  :xsi_type => 'CustomCreative',
+  :name => 'Manta Ad',
+  :advertiser_id => ADVERTISER_ID,
+  :destination_url => 'http://local.manta.com:8000/cp/mm020qj/banana-slicer/banana-slicer',
+  :html_snippet => '<iframe src="http://local.manta.com:8000/cp/claimed/banana-slicer/banana-slicer?view=micro"></iframe>',
+  :size => {:width => 300, :height => 250, :is_aspect_ratio => false }
+}])
+
+if creatives
+  creatives.each do |creative|
+    puts "Custom creative with ID: %d, name: '%s'and type: '%s' was created." % [creative[:id], creative[:name], creative[:creative_type]]
+  end
+else
+  raise 'Creative was not created.'
+end
+
+# create the assocation between the creative and the line item
+
+lica_service = dfp.service(:LineItemCreativeAssociationService, API_VERSION)
+licas = lica_service.create_line_item_creative_associations([{
+  :line_item_id => line_items[0][:id],
+  :creative_id => creatives[0][:id]
+}])
+
+if licas
+  licas.each do |lica|
+    puts "LICA with line item ID: %d, creative ID: %d and status: %s was created" % [lica[:line_item_id], lica[:creative_id], lica[:status]]
+  end
+else
+  raise "no LICA's were created"
+end
