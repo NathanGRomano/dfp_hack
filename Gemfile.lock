@@ -1,0 +1,49 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    addressable (2.3.6)
+    akami (1.2.2)
+      gyoku (>= 0.4.0)
+      nokogiri
+    builder (3.2.2)
+    faraday (0.9.0)
+      multipart-post (>= 1.2, < 3)
+    google-ads-common (0.9.5)
+      httpi (~> 1.1.0)
+      savon (~> 1.2.0)
+      signet (~> 0.5.0)
+    google-dfp-api (0.8.0)
+      google-ads-common (~> 0.9.4)
+    gyoku (0.4.6)
+      builder (>= 2.1.2)
+    httpi (1.1.1)
+      rack
+    jwt (0.1.11)
+      multi_json (>= 1.5)
+    multi_json (1.9.3)
+    multipart-post (2.0.0)
+    nokogiri (1.5.6)
+    nori (1.1.5)
+    rack (1.5.2)
+    savon (1.2.0)
+      akami (~> 1.2.0)
+      builder (>= 2.1.2)
+      gyoku (~> 0.4.5)
+      httpi (~> 1.1.0)
+      nokogiri (>= 1.4.0)
+      nori (~> 1.1.0)
+      wasabi (~> 2.5.0)
+    signet (0.5.0)
+      addressable (>= 2.2.3)
+      faraday (>= 0.9.0.rc5)
+      jwt (>= 0.1.5)
+      multi_json (>= 1.0.0)
+    wasabi (2.5.1)
+      httpi (~> 1.0)
+      nokogiri (>= 1.4.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  google-dfp-api
