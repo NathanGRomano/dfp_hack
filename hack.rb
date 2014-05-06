@@ -28,6 +28,9 @@ OptionParser.new do |opts|
       $options[:keywords].concat v.split ','
     end
   end
+  opts.on("-s", "--slug [SLUG]", String, "The slug of the company") do |v|
+    $options[:slug] = v
+  end
 end.parse!
 
 puts $options
@@ -340,8 +343,8 @@ creatives = creative_service.create_creatives([{
   :xsi_type => 'CustomCreative',
   :name => 'Manta Ad',
   :advertiser_id => ADVERTISER_ID,
-  :destination_url => 'http://local.manta.com:8000/cp/%s/%s/' % [$options[:emid], $options[:product]],
-  :html_snippet => '<iframe src="http://local.manta.com:8000/cp/%s/%s/?view=micro"></iframe>' % [$options[:emid], $options[:product]],
+  :destination_url => 'http://local.manta.com:7990/cp/%s/%s/%s' % [$options[:emid], $options[:product], $options[:slug]],
+  :html_snippet => '<iframe style="margin-bottom: 20px; border: none;" height="600px" width="300px" seamless="true" scrolling="false"  src="http://local.manta.com:7990/cp/%s/%s/%s?view=micro"></iframe>' % [$options[:emid], $options[:product], $options[:slug]],
   :size => {:width => 300, :height => 600, :is_aspect_ratio => false }
 }])
 
