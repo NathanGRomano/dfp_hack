@@ -275,10 +275,10 @@ targeting = {
     ]
   },
 
-  :user_domain_targeting => {
-    :domains => ['manta.com'],
-    :targeted => true
-  },
+#  :user_domain_targeting => {
+#    :domains => ['manta.com'],
+#    :targeted => true
+#  },
 
   :day_part_targeting => {
     :time_zone => 'BROWSER',
@@ -318,7 +318,7 @@ line_items = line_item_service.create_line_items([{
   :start_date_time_type => 'IMMEDIATELY',
   :end_date_time => Time.new + 60 * 60 * 24 * 7,
   :cost_type => 'CPM',
-  :cost_per_unit => { :currency_code => 'USD', :micro_amount => 2000000 },
+  :cost_per_unit => { :currency_code => 'USD', :micro_amount => 9000000 },
   :units_bought => 50000,
   :unit_type => 'IMPRESSIONS'
 }])
@@ -374,7 +374,7 @@ end
 statement = { :query => 'WHERE id = %d' % [orders[0][:id]] }
 result = order_service.perform_order_action({:xsi_type => 'ApproveAndOverbookOrders'}, statement)
 
-if results and result[:num_changes] > 0
+if result and result[:num_changes] > 0
   puts 'Order %d approved' % [orders[0][:id]] 
 else
   raise 'The order was not approved!'
