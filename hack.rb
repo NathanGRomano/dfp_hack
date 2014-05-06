@@ -226,7 +226,7 @@ def build_custom_targeting_children (values)
       :xsi_type => 'CustomCriteria',
       :custom_criteria_node_type => 'CustomCriteria',
       :key_id => T_VAR_ID,
-      :value_ids => [ value ]
+      :value_ids => [ value ],
     })
   end
 
@@ -368,3 +368,15 @@ if licas
 else
   raise "no LICA's were created"
 end
+
+# approve the order
+
+statement = { :query => 'WHERE id = %d' % [orders[0][:id]] }
+result = order_service.perform_order_action({:xsi_type => 'ApproveAndOverbookOrders'}, statement)
+
+if results and result[:num_changes] > 0
+  puts 'Order %d approved' % [orders[0][:id]] 
+else
+  raise 'The order was not approved!'
+end
+
